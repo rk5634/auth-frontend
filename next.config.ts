@@ -3,8 +3,8 @@ const isProd = process.env.NODE_ENV === 'production';
 
 const nextConfig = {
   output: 'export',
-  basePath: isProd ? '/auth-frontend' : '',
-  assetPrefix: isProd ? '/auth-frontend/' : '',
+  basePath: isProd ? '' : '',
+  assetPrefix: isProd ? '' : '',
 };
 
 module.exports = nextConfig;
