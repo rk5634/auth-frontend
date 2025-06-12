@@ -5,6 +5,7 @@ export async function POST(req: NextRequest) {
     let requestBody;
     try {
         requestBody = await req.json();
+        console.log('Request body:', requestBody);
     } catch (error: unknown) {
         console.error('Error during signup proxy:', error);
         return NextResponse.json(
@@ -12,5 +13,6 @@ export async function POST(req: NextRequest) {
             { status: 500 }
         );
     };
+
   return NextResponse.json({ message: 'Signup successful' });
 }
