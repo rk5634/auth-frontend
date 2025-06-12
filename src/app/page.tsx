@@ -21,7 +21,7 @@ export default function Home() {
             .
           </li>
           <li className="tracking-[-.01em]">
-            Welcome to RK's World.
+            Welcome to Auth-Frontend
           </li>
         </ol>
 

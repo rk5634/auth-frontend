@@ -46,12 +46,13 @@ export async function POST(req: NextRequest) {
   let requestBody: LoginRequestBody;
   try {
     requestBody = await req.json();
-  } catch (error) {
-    return NextResponse.json(
-      { message: 'Invalid request body. Expected JSON.' },
-      { status: 400 }
-    );
-  }
+  } catch (error: unknown) {
+      console.error('Error during login proxy:', error);
+      return NextResponse.json(
+        { message: 'Internal server error during login.' },
+        { status: 500 }
+      );
+    }
 
   const { email, password } = requestBody;
 

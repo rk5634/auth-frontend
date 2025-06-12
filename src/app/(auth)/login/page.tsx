@@ -37,15 +37,18 @@ export default function LoginPage() {
     try {
       await axios.post('/auth/login', data); // Assuming your login API endpoint is /auth/login
       router.push('/dashboard'); // Or '/home', or wherever authenticated users go
-    } catch (error: any) {
-      // Handle different error responses from the backend
-      if (error?.response?.status === 401) {
-        setServerError('Invalid email or password. Please try again.');
-      } else {
-        setServerError(error?.response?.data?.message || 'Login failed. Please try again later.');
-      }
-    }
-  };
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            if (error.response?.status === 401) {
+            setServerError('Invalid email or password. Please try again.');
+            } else {
+            setServerError(error.response?.data?.message || 'Login failed. Please try again later.');
+            }
+        } else {
+            setServerError('An unknown error occurred.');
+            }
+        }
+    };
 
   return (
     <div className="max-w-md mx-auto mt-10 bg-white p-6 rounded-xl shadow">
@@ -108,10 +111,10 @@ export default function LoginPage() {
           Forgot password?
         </Link>
         <p className="mt-2">
-          Don't have an account?{' '}
-          <Link href="/signup" className="text-blue-600 hover:underline">
-            Sign Up
-          </Link>
+            Don&apos;t have an account?{' '}
+            <Link href="/signup" className="text-blue-600 hover:underline">
+                Sign Up
+            </Link>
         </p>
       </div>
     </div>

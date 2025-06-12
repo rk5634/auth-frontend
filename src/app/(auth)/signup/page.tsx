@@ -91,10 +91,15 @@ export default function SignupPage() {
       console.log('Sending data:', dataToSend);
       await axios.post('/auth/signup', dataToSend);
       router.push('/verify-email');
-    } catch (error: any) {
-      console.error('Signup error:', error);
-      setServerError(error?.response?.data?.message || 'Signup failed. Please try again.');
-    }
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          console.error('Signup error:', error);
+          setServerError(error.response?.data?.message || 'Signup failed. Please try again.');
+        } else {
+          console.error('Unknown error during signup:', error);
+          setServerError('Signup failed. Please try again.');
+        }
+      }
   };
 
   return (
@@ -252,7 +257,7 @@ export default function SignupPage() {
 
       <div className="mt-4 text-center text-sm">
         <p>
-          Already have an account?{' '}
+          Already have an account?&nbsp;
           <Link href="/login" className="text-blue-600 hover:underline">
             Log In
           </Link>
