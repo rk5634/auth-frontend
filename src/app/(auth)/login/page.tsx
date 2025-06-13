@@ -4,10 +4,15 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'; // Correct for App Router
 import { Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
-import Link from 'next/link'; // Added for potential "Forgot Password" or "Sign Up" links
+import Link from 'next/link';
+
+// Adjust the import path as necessary based on your actual file system from this component's location
+// Assuming this file is src/app/(auth)/login/_components/LoginForm.tsx
+// Then the path to src/lib/types/api.d.ts would be:
+import { GoBackendLoginSuccessResponse } from '@/lib/types/api'; // Prefer absolute path alias if configured, else relative
 
 // --- Schema for Login Form ---
 const schema = z.object({
@@ -17,7 +22,7 @@ const schema = z.object({
 
 type LoginFormData = z.infer<typeof schema>;
 
-export default function LoginPage() {
+export default function LoginPage() { // This component would typically be LoginForm.tsx if placed in _components
   const {
     register,
     handleSubmit,
@@ -35,20 +40,48 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormData) => {
     setServerError(''); // Clear previous errors
     try {
-      await axios.post('/auth/login', data); // Assuming your login API endpoint is /auth/login
-      router.push('/dashboard'); // Or '/home', or wherever authenticated users go
+        // Type the axios.post response using the imported interface
+        const response = await axios.post<{ message: string; user: GoBackendLoginSuccessResponse }>('/api/auth/login', data);
+        console.log('login/page - Till here code works--'); // Log for debugging
+ // Assuming your Next.js API route is `/api/auth/login`
+        console.log('Response from backend:', response.data.user); // Log the full response for debugging
+        // Destructure the actual data from the nested 'data' property of the response
+        const { accesstoken, userid, email, role, deviceid } = response.data.user.data;
+
+      // --- Store/Use the received data ---
+      // For persistent storage, localStorage is common.
+      // Remember to consider security implications for accesstoken (HttpOnly cookies are more secure).
+      localStorage.setItem('accessToken', accesstoken);
+      localStorage.setItem('userId', userid);
+      localStorage.setItem('userEmail', email);
+      localStorage.setItem('userRole', role);
+      localStorage.setItem('userDeviceId', deviceid);
+
+      // Log for debugging/confirmation
+      console.log('Login successful:', response.data.message);
+      console.log('Received user data:', { userid, email, role, deviceid });
+      // Note: Do not log accesstoken in production console for security reasons
+
+      // Redirect to the dashboard after successful login and data storage
+      router.push('/dashboard');
+
     } catch (error: unknown) {
-        if (axios.isAxiosError(error)) {
-            if (error.response?.status === 401) {
-            setServerError('Invalid email or password. Please try again.');
-            } else {
-            setServerError(error.response?.data?.message || 'Login failed. Please try again later.');
-            }
+      if (axios.isAxiosError(error)) {
+        // Attempt to get a more specific error message from the backend's response data
+        // Assuming your backend might send a 'message' property in error responses too
+        const errorMessage = (error.response?.data as { message?: string })?.message;
+
+        if (error.response?.status === 401) {
+          setServerError('Invalid email or password. Please try again.');
         } else {
-            setServerError('An unknown error occurred.');
-            }
+          setServerError(errorMessage || 'Login failed. Please try again later.');
         }
-    };
+      } else {
+        setServerError('An unknown error occurred.');
+      }
+      console.error('Login error:', error); // Log the full error for debugging
+    }
+  };
 
   return (
     <div className="max-w-md mx-auto mt-10 bg-white p-6 rounded-xl shadow">
@@ -65,8 +98,8 @@ export default function LoginPage() {
             id="email"
             type="email"
             {...register('email')}
-            className="input"
-            autoComplete="email" // Helps with autofill
+            className="input block w-full border border-gray-300 rounded-md p-2 mt-1" // Added basic styling for clarity
+            autoComplete="email"
           />
           {errors.email && (
             <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
@@ -80,8 +113,8 @@ export default function LoginPage() {
               id="password"
               type={showPassword ? 'text' : 'password'}
               {...register('password')}
-              className="input pr-10"
-              autoComplete="current-password" // Helps with autofill
+              className="input block w-full border border-gray-300 rounded-md p-2 mt-1 pr-10" // Added basic styling
+              autoComplete="current-password"
             />
             <button
               type="button"
@@ -100,7 +133,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" // Added disabled styles
         >
           {isSubmitting ? 'Logging In...' : 'Login'}
         </button>
@@ -111,10 +144,10 @@ export default function LoginPage() {
           Forgot password?
         </Link>
         <p className="mt-2">
-            Don&apos;t have an account?{' '}
-            <Link href="/signup" className="text-blue-600 hover:underline">
-                Sign Up
-            </Link>
+          Don&apos;t have an account?{' '}
+          <Link href="/signup" className="text-blue-600 hover:underline">
+            Sign Up
+          </Link>
         </p>
       </div>
     </div>

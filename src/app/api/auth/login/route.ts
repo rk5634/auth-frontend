@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+  console.log('login/route - Till here code works', GO_BACKEND_URL); // Log for debugging
 
   let requestBody: LoginRequestBody;
   try {
@@ -102,7 +103,7 @@ export async function POST(req: NextRequest) {
     const response = NextResponse.json(
       {
         message: 'Login successful',
-        user: successData.data // Optionally pass other user data
+        user: successData// Optionally pass other user data
       },
       { status: 200 }
     );
@@ -126,11 +127,11 @@ export async function POST(req: NextRequest) {
             const cookieValue = cookieParts[0].split('=')[1];
             const cookieName = cookieParts[0].split('=')[0];
 
-            const cookiesObject = await cookies(); // No need for await, it's a direct function call for setting
+            // const cookiesObject = cookies(); // No need for await, it's a direct function call for setting
 
             // Set the refresh token cookie on the Next.js domain
             // Replicate HttpOnly, Secure, SameSite, Path, Expires from your Go backend's refresh token cookie.
-            cookiesObject.set(cookieName, cookieValue, {
+            response.cookies.set(cookieName, cookieValue, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production', // Matches Go's conditional secure
                 path: '/',
@@ -144,6 +145,7 @@ export async function POST(req: NextRequest) {
         }
     }
 
+    console.log('Login proxy successful:', response);
     return response;
 
   } catch (error) {
