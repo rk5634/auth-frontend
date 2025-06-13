@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers'; // Used to set cookies on the server-side
 
 // Define the expected structure of the request body for type safety
 interface LoginRequestBody {
