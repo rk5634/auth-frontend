@@ -31,7 +31,9 @@ const GO_BACKEND_URL = process.env.GO_BACKEND_URL;
 
 // IMPORTANT: This should be the name of the HttpOnly cookie your Go backend sets for the REFRESH TOKEN
 const REFRESH_TOKEN_COOKIE_NAME = 'refresh_token'; // <-- MODIFIED: Renamed and purpose clarified
-
+export async function GET() {
+  return NextResponse.json({ message: 'api/auth/login - GET method works' });
+}
 export async function POST(req: NextRequest) {
   // 1. Validate environment variable
   if (!GO_BACKEND_URL) {
