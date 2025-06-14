@@ -40,7 +40,10 @@ export default function LoginPage() { // This component would typically be Login
   const onSubmit = async (data: LoginFormData) => {
     setServerError(''); // Clear previous errors
     try {
+        const GO_BACKEND_URL = process.env.GO_BACKEND_URL;
+        console.log('GO_BACKEND_URL - ', GO_BACKEND_URL); // Log for debugging
         // Type the axios.post response using the imported interface
+        console.log('login/page - Till here code works--'); // Log for debugging
         const response = await axios.post<{ message: string; user: GoBackendLoginSuccessResponse }>('/api/auth/login', data);
         console.log('login/page - Till here code works--'); // Log for debugging
  // Assuming your Next.js API route is `/api/auth/login`
